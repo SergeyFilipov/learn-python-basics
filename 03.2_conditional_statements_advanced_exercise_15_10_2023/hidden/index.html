@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Min profil</title>
+
+<style>
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background:#ffffff;
+    color:#111;
+  }
+
+  /* Header */
+  .header{
+    padding:18px 16px 8px;
+    font-size:34px;
+    font-weight:800;
+  }
+
+  /* Tabs */
+  .tabs{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    padding:0 16px 16px;
+  }
+  .tab{
+    background:#5a5a5a;
+    color:#fff;
+    padding:10px 14px;
+    border-radius:6px;
+    font-weight:700;
+    font-size:14px;
+  }
+  .tab.active{
+    background:#e91e63;
+  }
+
+  /* Content */
+  .content{
+    padding:16px;
+    text-align:center;
+  }
+
+  h1{
+    font-size:34px;
+    margin:10px 0 6px;
+  }
+  .sub{
+    color:#666;
+    font-weight:600;
+    margin-bottom:10px;
+  }
+  .phone a{
+    color:#1a73e8;
+    text-decoration:none;
+    font-weight:700;
+  }
+
+  /* Photo */
+  .photo{
+    position:relative;
+    width:200px;
+    height:240px;
+    margin:18px auto 12px;
+    border-radius:6px;
+    overflow:hidden;
+    border:1px solid #ddd;
+    background:#f2f2f2;
+  }
+  .photo img{
+    position: relative;
+    z-index: 1;              /* снимката е под overlay */
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    transform-origin:center;
+    backface-visibility:hidden;
+  }
+
+  /* въртене (огледално) */
+  @keyframes mirrorFlip{
+    0%{ transform:scaleX(1); }
+    50%{ transform:scaleX(-1); }
+    100%{ transform:scaleX(1); }
+  }
+  .flip{
+    animation: mirrorFlip .55s linear infinite;  /* снимката 1 идея по-бавно */
+  }
+
+  /* overlay (видим, но “официален”) */
+  .photo::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    z-index: 2;              /* overlay е над снимката */
+    opacity:0;
+    pointer-events:none;
+    transition: opacity 80ms linear;
+  }
+  .photo.overlay-on::after{ opacity:1; }
+
+  /* средни бледи нюанси */
+  .photo.c1::after{ background: rgba(255, 185, 200, 0.25); } /* розово */
+  .photo.c2::after{ background: rgba(180, 215, 255, 0.25); } /* синьо */
+  .photo.c3::after{ background: rgba(180, 235, 200, 0.25); } /* зелено */
+  .photo.c4::after{ background: rgba(255, 240, 180, 0.25); } /* жълто */
+
+  .name{
+    font-size:20px;
+    font-weight:800;
+    margin-top:6px;
+  }
+  .info{
+    margin:6px 0;
+    font-size:16px;
+  }
+
+  /* Button */
+  .btn{
+    margin:20px auto 30px;
+    width:80%;
+    max-width:360px;
+    background:#0f5d56;
+    color:#fff;
+    padding:16px;
+    font-size:20px;
+    font-weight:900;
+    border-radius:10px;
+    cursor:pointer;
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action: manipulation;
+  }
+  .btn:active,
+  .btn.pressed{
+    background:#9e9e9e;
+    transform: translateY(1px);
+  }
+
+  .footer{
+    text-align:center;
+    padding-bottom:24px;
+  }
+  .pill{
+    display:inline-block;
+    padding:10px 18px;
+    border-radius:999px;
+    border:1px solid #ddd;
+    font-weight:700;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="header">Min profil (ID: 1485685)</div>
+
+<div class="tabs">
+  <div class="tab">Personalia</div>
+  <div class="tab">Profil</div>
+  <div class="tab active">Studentbevis</div>
+  <div class="tab">Microsoft 365 / VPN</div>
+  <div class="tab">Resultater</div>
+  <div class="tab">Klasse</div>
+  <div class="tab">Sikkerhet</div>
+  <div class="tab">Varslingsinnstillinger</div>
+</div>
+
+<div class="content">
+  <h1>Studentbevis</h1>
+  <div class="sub">Studiested: Oslo Nye Høyskole</div>
+  <div class="phone">
+    Telefon: <a href="tel:+4723423895">23 42 38 95</a>
+  </div>
+
+  <div class="photo">
+    <img id="photo" src="foto.JPG?v=2" alt="Student photo">
+  </div>
+
+  <div class="name">Sergey Filipov</div>
+  <div class="info">26.02.1997</div>
+  <div class="info">ID: 1485685</div>
+  <div class="info">Fulltidsstudent</div>
+  <div class="info">Studierett: 20.08.2025 til 16.07.2026</div>
+
+  <div class="btn" id="btn">Gyldig</div>
+</div>
+
+<div class="footer">
+  <div class="pill">qybele.no</div>
+</div>
+
+<script>
+  const btn = document.getElementById("btn");
+  const photoImg = document.getElementById("photo");
+  const photoBox = document.querySelector(".photo");
+
+  // Колко често да сменя цветовете (по-бързо)
+  const TICK_MS = 250; // ~4 пъти/сек
+  let timer = null;
+  let colorIndex = 0;
+  const colors = ["c1","c2","c3","c4"];
+
+  const nextColor = () => {
+    photoBox.classList.remove("c1","c2","c3","c4");
+    photoBox.classList.add(colors[colorIndex]);
+    colorIndex = (colorIndex + 1) % colors.length;
+  };
+
+  const start = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+
+    btn.classList.add("pressed");
+    photoImg.classList.add("flip");
+    photoBox.classList.add("overlay-on");
+
+    colorIndex = 0;
+    nextColor();
+    timer = setInterval(nextColor, TICK_MS);
+  };
+
+  const stop = () => {
+    if (timer) clearInterval(timer);
+    timer = null;
+
+    btn.classList.remove("pressed");
+    photoImg.classList.remove("flip");
+    photoBox.classList.remove("overlay-on","c1","c2","c3","c4");
+  };
+
+  // mouse
+  btn.addEventListener("mousedown", start);
+  document.addEventListener("mouseup", stop);
+  btn.addEventListener("mouseleave", stop);
+
+  // touch
+  btn.addEventListener("touchstart", start, { passive:false });
+  btn.addEventListener("touchend", stop);
+  btn.addEventListener("touchcancel", stop);
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) stop();
+  });
+</script>
+
+</body>
+</html>
