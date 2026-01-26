@@ -152,6 +152,17 @@
     border:1px solid #ddd;
     font-weight:700;
   }
+
+  .link-pill{
+  text-decoration:none;
+  color:#111;
+  transition: background 120ms linear, transform 80ms linear;
+}
+
+.link-pill:active{
+  background:#cfcfcf;
+  transform: translateY(1px);
+}
 </style>
 </head>
 
@@ -191,7 +202,12 @@
 </div>
 
 <div class="footer">
-  <div class="pill">qybele.no</div>
+  <a href="https://www.oslomet.no"
+     class="pill link-pill"
+     target="_blank"
+     rel="noopener">
+     oslomet.no
+  </a>
 </div>
 
 <script>
